@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+	</head>
+	<body>
+		<h1>Hello Socket!</h1>
+
+		<script>
+			const socket = new WebSocket("ws://localhost:8080/room");
+			var users = [];
+			socket.onopen = (ws) => {
+				console.log("conectado!");
+			};
+
+			socket.onmessage = (event) => {
+				let msg = JSON.parse(event.data);
+
+				users = msg;
+				console.table(users);
+			};
+		</script>
+	</body>
+</html>
