@@ -7,7 +7,7 @@ const room = new RoomController();
 export function mountWsRouter() {
 	wsRouter.ws("/", function (ws, req) {
 		ws.on("message", function (msg) {
-			room.handleMessage(ws, String(msg));
+			room.handleMessage(ws, msg);
 		});
 
 		ws.on("close", function () {

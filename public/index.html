@@ -6,12 +6,32 @@
 		<title>Document</title>
 	</head>
 	<body>
-		<h1>Hello Socket!</h1>
+		<h1>Users list</h1>
+		<table border="1px solid gray">
+			<thead>
+				<tr>
+					<th>Nome</th>
+					<th>ready</th>
+					<th>role</th>
+				</tr>
+			</thead>
+			<tbody id="users-table"></tbody>
+		</table>
 
 		<script>
+			const table = document.querySelector("#users-table");
 			const socket = new WebSocket("ws://localhost:8080/room");
+
+			const user = {
+				name: "browser",
+				ready: false,
+			};
+
 			var users = [];
 			socket.onopen = (ws) => {
+				socket.send(JSON.stringify(user));
+
+				loadUsers();
 				console.log("conectado!");
 			};
 
@@ -19,8 +39,26 @@
 				let msg = JSON.parse(event.data);
 
 				users = msg;
+
+				loadUsers();
 				console.table(users);
 			};
+
+			function sendUpdate() {
+				socket.send(JSON.stringify(user));
+				loadUsers();
+			}
+
+			function loadUsers() {
+				table.innerHTML = "";
+				users.forEach((user) => {
+					table.innerHTML += `<tr>
+							<td>${user.name}</td>
+							<td>${user.ready}</td>
+							<td>${user.role}</td>
+						</tr>`;
+				});
+			}
 		</script>
 	</body>
 </html>

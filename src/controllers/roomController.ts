@@ -43,8 +43,15 @@ class RoomController {
 		this.updateAllUsers();
 	}
 
-	public handleMessage(ws: WebSocket.WebSocket, msg: string): void {
-		let user = JSON.parse(msg);
+	public handleMessage(ws: WebSocket.WebSocket, msg: any): void {
+		let user;
+
+		try {
+			user = JSON.parse(msg);
+		} catch (error) {
+			console.error("[Error]: " + error);
+			return;
+		}
 
 		if (!User.isUser(user)) return;
 
@@ -52,7 +59,6 @@ class RoomController {
 			ws: ws,
 			user: new User(user),
 		};
-
 		this.updateUser(userWs);
 
 		if (this.checkAllUsersReady()) {
@@ -63,15 +69,14 @@ class RoomController {
 
 	public handleCloseConnection(ws: WebSocket.WebSocket): void {
 		this.usersWs = this.usersWs.filter((u) => u.ws !== ws);
+		this.updateAllUsers();
 	}
 
 	public updateUser(userWs: IUsersWs): void {
 		this.usersWs[this.usersWs.findIndex((u) => u.ws === userWs.ws)] =
 			userWs;
-		userWs;
 
 		this.usersWs.forEach((u) => {
-			if (u.ws == userWs.ws) return;
 			u.ws.send(JSON.stringify(this.getUsers));
 		});
 	}
