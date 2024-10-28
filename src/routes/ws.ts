@@ -8,6 +8,7 @@ export function mountWsRouter() {
 	wsRouter.ws("/", function (ws, req) {
 		ws.on("message", function (msg) {
 			room.handleMessage(ws, msg);
+			ws;
 		});
 
 		ws.on("close", function () {

@@ -1,51 +1,24 @@
+import { WebsocketMethod } from "express-ws";
+import Room, { IUserWs } from "../core/room";
 import { Iuser, User } from "../core/user";
-import { WebSocket } from "vite";
-
-interface IUsersWs {
-	user: User;
-	ws: WebSocket;
-}
 
 class RoomController {
-	private usersWs: IUsersWs[] = [];
+	private room: Room = new Room();
 
-	public addUser(user: IUsersWs): void {
-		this.usersWs.push(user);
-	}
-
-	public drawUsers(): Iuser[] {
-		let impostor =
-			this.usersWs[Math.floor(Math.random() * this.usersWs.length)];
-
-		this.usersWs.forEach((u) => {
-			if (u === impostor) {
-				u.user.role = "impostor";
-			} else {
-				u.user.role = "civil";
-			}
-
-			u.user.ready = false;
-		});
-
-		console.log("impostor selecionado: " + this.usersWs.indexOf(impostor));
-
-		return this.getUsers;
-	}
-
-	public handleUserConnection(ws: WebSocket.WebSocket): void {
-		let userWs = {
+	public handleUserConnection(ws: any): void {
+		let userWs: IUserWs = {
 			ws: ws,
 			user: new User({ name: "user" }),
 		};
 
-		this.addUser(userWs);
+		this.room.addUser(userWs);
 
-		this.updateAllUsers();
+		this.sendUsersUpdate();
 	}
 
-	public handleMessage(ws: WebSocket.WebSocket, msg: any): void {
-		let user;
-
+	public handleMessage(ws: any, msg: any): void {
+		let user: Iuser;
+		let userWs: IUserWs;
 		try {
 			user = JSON.parse(msg);
 		} catch (error) {
@@ -55,48 +28,31 @@ class RoomController {
 
 		if (!User.isUser(user)) return;
 
-		let userWs: IUsersWs = {
+		userWs = {
 			ws: ws,
 			user: new User(user),
 		};
-		this.updateUser(userWs);
 
-		if (this.checkAllUsersReady()) {
-			this.drawUsers();
-			this.updateAllUsers();
-		}
+		this.room.updateUser(userWs);
+		this.sendUsersUpdate();
 	}
 
-	public handleCloseConnection(ws: WebSocket.WebSocket): void {
-		this.usersWs = this.usersWs.filter((u) => u.ws !== ws);
-		this.updateAllUsers();
+	public handleCloseConnection(ws: any): void {
+		this.room.removeUser(ws);
+		this.sendUsersUpdate();
 	}
 
-	public updateUser(userWs: IUsersWs): void {
-		this.usersWs[this.usersWs.findIndex((u) => u.ws === userWs.ws)] =
-			userWs;
+	public sendUsersUpdate() {
+		let updateMessage = {
+			type: "usersUpdate",
+			users: this.room.getUsers,
+		};
 
-		this.usersWs.forEach((u) => {
-			u.ws.send(JSON.stringify(this.getUsers));
+		this.room.usersWs.forEach((u) => {
+			let msg = { ...updateMessage, user: u.user };
+			u.ws.send(JSON.stringify(msg));
 		});
-	}
-
-	public updateAllUsers(): void {
-		this.usersWs.forEach((u) => {
-			u.ws.send(JSON.stringify(this.getUsers));
-		});
-	}
-
-	public checkAllUsersReady(): boolean {
-		let areReady = this.usersWs.every((u) => u.user.ready);
-		return areReady;
-	}
-
-	public get getUsers(): Iuser[] {
-		let users: Iuser[] = this.usersWs.map((u) => u.user);
-		return this.usersWs.map((user) => user.user);
 	}
 }
 
-export { IUsersWs };
 export default RoomController;
