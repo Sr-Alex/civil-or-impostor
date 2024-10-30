@@ -1,11 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h2>Hello world!</h2>
-</body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+
+		<style>
+			body {
+				background-color: #0a0a0a;
+
+				color: #f5f5f5f5;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Users list</h1>
+		<table border="1px solid gray">
+			<thead>
+				<tr>
+					<th>Nome</th>
+					<th>ready</th>
+					<th>role</th>
+				</tr>
+			</thead>
+			<tbody id="users-table"></tbody>
+		</table>
+
+		<script>
+			const table = document.querySelector("#users-table");
+			const socket = new WebSocket("ws://localhost:8080/room");
+
+			var user = {
+				name: "browser",
+				ready: false,
+			};
+
+			var users = [];
+			socket.onopen = (ws) => {
+				socket.send(JSON.stringify(user));
+
+				loadUsers();
+				console.log("conectado!");
+			};
+
+			socket.onmessage = (event) => {
+				let msg = JSON.parse(event.data);
+
+				if (msg["type"] === "usersUpdate") {
+					handleUsersUpdate(msg);
+				}
+
+				loadUsers();
+				console.table(users);
+			};
+
+			function sendUpdate() {
+				socket.send(JSON.stringify(user));
+				loadUsers();
+			}
+
+			function handleUsersUpdate(update) {
+				users = update.users;
+
+				if ("user" in update) {
+					user = update.user;
+				}
+			}
+
+			function loadUsers() {
+				table.innerHTML = "";
+				users.forEach((user) => {
+					table.innerHTML += `<tr>
+							<td>${user.name}</td>
+							<td>${user.ready}</td>
+							<td>${user.role}</td>
+						</tr>`;
+				});
+			}
+		</script>
+	</body>
 </html>
