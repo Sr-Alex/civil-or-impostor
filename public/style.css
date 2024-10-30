@@ -1,0 +1,21 @@
+:root {}
+
+* {
+    box-sizing: border-box;
+    
+    margin: 0; padding: 0;
+}
+
+body {
+    color: white;
+    background-color: black;
+}
+
+#userName {
+    height: 2rem;
+    padding: 0 .5rem;
+    
+    color: white;
+    border: 1px solid white;
+    background-color: transparent;
+}
