@@ -8,33 +8,39 @@
 		<link rel="stylesheet" href="style.css" />
 	</head>
 	<body>
-		<h1>Users list</h1>
-		<table border="1px solid gray">
-			<thead>
-				<tr>
-					<th>Nome</th>
-					<th>ready</th>
-					<th>role</th>
-				</tr>
-			</thead>
-			<tbody id="users-table"></tbody>
-		</table>
+		<main>
+			<header>
+				<input
+					type="text"
+					name="userName"
+					id="userName"
+					placeholder="Ex: Player Name..." />
 
-		<h2>Set name:</h2>
+				<button type="button" id="setName" class="submit-btn">
+					OK
+				</button>
+			</header>
+			<table>
+				<thead>
+					<caption>
+						Usuários conectados:
+					</caption>
+				</thead>
+				<tbody id="users-table">
+					<tr>
+						<th>Nome</th>
+						<th>ready</th>
+					</tr>
+				</tbody>
+			</table>
+			<section id="civilImpostor">
+				<button type="button" id="readyButton" class="submit-btn">
+					Ready
+				</button>
 
-		<label for="userName">
-			<input
-				type="text"
-				name="userName"
-				id="userName"
-				placeholder="Ex: Player Name..." />
-		</label>
-
-		<button type="button" id="setName">SetName</button>
-
-		<hr />
-
-		<button type="button" id="readyButton">Ready</button>
+				<h2 id="showRole">-- <span id="role"></span> --</h2>
+			</section>
+		</main>
 
 		<script src="script.js"></script>
 	</body>

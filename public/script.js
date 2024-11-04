@@ -6,7 +6,7 @@ const readyButton = document.querySelector("#readyButton");
 const setNameButton = document.querySelector("#setName");
 
 var user = {
-	name: "browser",
+	name: "user",
 	ready: false,
 };
 
@@ -39,20 +39,27 @@ function sendUpdate() {
 }
 
 function handleUsersUpdate(update) {
+	let roleElement = document.querySelector("#role");
+
 	users = update.users;
 
 	if ("user" in update) {
 		user = update.user;
 	}
+
+	roleElement.dataset.role = user["role"] || "";
+	roleElement.textContent = user["role"] || "";
 }
 
 function loadUsers() {
-	table.innerHTML = "";
+	let userItems = document.querySelectorAll(".userItem");
+	userItems.forEach((item) => table.removeChild(item));
+
 	users.forEach((user) => {
-		table.innerHTML += `<tr>
+		table.innerHTML += `
+			<tr class="userItem">
                 <td>${user.name}</td>
                 <td>${user.ready}</td>
-                <td>${user.role}</td>
             </tr>`;
 	});
 }
